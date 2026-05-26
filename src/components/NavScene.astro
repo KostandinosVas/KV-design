@@ -1,0 +1,146 @@
+---
+
+---
+
+<div class="nav-scene">
+  <div class="nav-track" id="navTrack">
+    <ul class="nav-list">
+      <li><a href="#" class="active">Architecture</a></li>
+      <li><a href="#">Design Systems</a></li>
+      <li><a href="#">Motion Engineering</a></li>
+      <li><a href="#">WebGL &amp; 3D</a></li>
+      <li><a href="#">Performance Audits</a></li>
+      <li><a href="#">Case Studies</a></li>
+      <li><a href="#">Client Access</a></li>
+    </ul>
+  </div>
+
+  <!-- Cloud edge masks -->
+  <div class="cloud-mask cloud-mask-left">
+    <img src="/images/clouds/cloud03.png" alt="" />
+  </div>
+  <div class="cloud-mask cloud-mask-right">
+    <img src="/images/clouds/cloud02.png" alt="" />
+  </div>
+</div>
+
+<script>
+  const track = document.getElementById("navTrack")!;
+
+  /* ── Build 3-copy infinite loop ──────────────────────── */
+  const origList = track.querySelector(".nav-list")!;
+  const cloneL = origList.cloneNode(true) as HTMLElement;
+  const cloneR = origList.cloneNode(true) as HTMLElement;
+  track.insertBefore(cloneL, origList);
+  track.appendChild(cloneR);
+
+  let singleWidth = 0;
+  let ready = false;
+
+  /* ── Init: measure + center active item ──────────────── */
+  window.addEventListener("load", () => {
+    singleWidth = origList.getBoundingClientRect().width;
+
+    const active = origList.querySelector("a.active") as HTMLElement | null;
+    const anchor = (
+      active ? active.closest("li") : origList.querySelector("li")
+    ) as HTMLElement;
+    const aRect = anchor.getBoundingClientRect();
+    const tRect = track.getBoundingClientRect();
+    const itemCenter =
+      aRect.left - tRect.left + track.scrollLeft + aRect.width / 2;
+    track.scrollLeft = itemCenter - track.offsetWidth / 2;
+
+    highlightCenter();
+    requestAnimationFrame(() => {
+      ready = true;
+    });
+  });
+
+  /* ── Center-item spotlight ───────────────────────────── */
+  function highlightCenter() {
+    const trackCenter =
+      track.getBoundingClientRect().left + track.offsetWidth / 2;
+    const links = track.querySelectorAll("a");
+    let closest: HTMLElement | null = null;
+    let minDist = Infinity;
+    links.forEach((a) => {
+      const r = a.getBoundingClientRect();
+      const dist = Math.abs(r.left + r.width / 2 - trackCenter);
+      if (dist < minDist) {
+        minDist = dist;
+        closest = a;
+      }
+    });
+    links.forEach((a) => a.classList.toggle("center-item", a === closest));
+  }
+
+  /* ── Seamless loop on scroll ──────────────────────────── */
+  track.addEventListener(
+    "scroll",
+    () => {
+      if (!ready) return;
+      const maxScroll = track.scrollWidth - track.offsetWidth;
+      if (track.scrollLeft < 80) {
+        track.scrollLeft += singleWidth;
+      } else if (track.scrollLeft > maxScroll - 80) {
+        track.scrollLeft -= singleWidth;
+      }
+      highlightCenter();
+    },
+    { passive: true },
+  );
+
+  /* ── Mouse drag scrolling ────────────────────────────── */
+  let dragging = false;
+  let startX = 0;
+  let startScroll = 0;
+
+  track.addEventListener("mousedown", (e) => {
+    dragging = true;
+    startX = e.pageX - track.offsetLeft;
+    startScroll = track.scrollLeft;
+    track.classList.add("dragging");
+    e.preventDefault();
+  });
+
+  document.addEventListener("mouseup", () => {
+    dragging = false;
+    track.classList.remove("dragging");
+  });
+
+  /* ── Click: scroll clicked item to center ───────────── */
+  let didDrag = false;
+  track.addEventListener(
+    "mousedown",
+    () => {
+      didDrag = false;
+    },
+    { capture: true },
+  );
+  document.addEventListener("mousemove", () => {
+    if (dragging) didDrag = true;
+  });
+
+  track.addEventListener("click", (e) => {
+    const a = (e.target as HTMLElement).closest("a");
+    if (!a) return;
+    e.preventDefault();
+    if (didDrag) return;
+
+    const aRect = a.getBoundingClientRect();
+    const tRect = track.getBoundingClientRect();
+    const itemCenter =
+      aRect.left - tRect.left + track.scrollLeft + aRect.width / 2;
+    const target = itemCenter - track.offsetWidth / 2;
+    track.scrollTo({ left: target, behavior: "smooth" });
+  });
+
+  document.addEventListener("mousemove", (e) => {
+    if (!dragging) return;
+    e.preventDefault();
+    const x = e.pageX - track.offsetLeft;
+    const walk = (x - startX) * 1.6;
+    track.scrollLeft = startScroll - walk;
+  });
+</script>

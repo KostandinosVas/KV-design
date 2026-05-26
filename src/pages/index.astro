@@ -1,0 +1,423 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/Hero.astro";
+import Skyscrapers from "../components/Skyscrapers.astro";
+import SwiperSection from "../components/SwiperSection.astro";
+import Features from "../components/Features.astro";
+import CTA from "../components/CTA.astro";
+import "../styles/global.css";
+---
+
+<Layout>
+  <Hero />
+  <Skyscrapers />
+  <SwiperSection />
+  <div id="page-sections">
+    <Features />
+    <CTA />
+  </div>
+</Layout>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+  import Lenis from "lenis";
+  import Swiper from "swiper";
+  import { EffectCube } from "swiper/modules";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── Lenis smooth scroll ───────────────────────────── */
+  const lenis = new Lenis({
+    duration: 1.4,
+    easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+  });
+
+  lenis.on("scroll", ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  /* ── Scycrapers: scrubbed zoom-in tied to scroll progress ─ */
+  const scycrapers = document.querySelector(".scycrapers") as HTMLElement;
+  gsap.fromTo(
+    scycrapers,
+    { scale: 1, opacity: 0, transformOrigin: "center center" },
+    {
+      scale: 1.12,
+      opacity: 1,
+      ease: "none",
+      scrollTrigger: {
+        trigger: scycrapers,
+        start: "top bottom",
+        end: "top 20%",
+        scrub: 1.2,
+      },
+    },
+  );
+
+  /* ── Cloud ambient float ─────────────────────────────
+     Ambient clouds (bg-cloud-1, bg-cloud-2): free XY drift.
+     Transition clouds (bg-cloud-3/4/5, top-cloud-1/2/3): Y only —
+     their X is driven by the ScrollTrigger below.
+  ─────────────────────────────────────────────────────── */
+  (function () {
+    function makeCloudFloat(
+      selector: string,
+      opts: {
+        maxX?: number;
+        maxY?: number;
+        minDur?: number;
+        maxDur?: number;
+        delay?: number;
+      },
+    ) {
+      const el = document.querySelector(selector) as HTMLElement | null;
+      if (!el) return;
+      const maxX = opts.maxX ?? 0;
+      const maxY = opts.maxY ?? 12;
+      const minDur = opts.minDur ?? 22;
+      const maxDur = opts.maxDur ?? 46;
+      const delay = opts.delay ?? 0;
+
+      function step() {
+        const props: Record<string, unknown> = {
+          y: gsap.utils.random(-maxY, maxY),
+        };
+        if (maxX > 0) props.x = gsap.utils.random(-maxX, maxX);
+        gsap.to(el!, {
+          ...props,
+          duration: gsap.utils.random(minDur, maxDur),
+          ease: "sine.inOut",
+          onComplete: step,
+        });
+      }
+      gsap.delayedCall(delay, step);
+    }
+
+    /* Ambient — free XY float */
+    makeCloudFloat(".bg-cloud-1", {
+      maxX: 32,
+      maxY: 12,
+      minDur: 22,
+      maxDur: 40,
+      delay: 0,
+    });
+    makeCloudFloat(".bg-cloud-2", {
+      maxX: 26,
+      maxY: 10,
+      minDur: 18,
+      maxDur: 36,
+      delay: 3.5,
+    });
+
+    /* Transition — Y-only float (X handled by ScrollTrigger) */
+    makeCloudFloat(".bg-cloud-3", {
+      maxY: 8,
+      minDur: 28,
+      maxDur: 52,
+      delay: 1.2,
+    });
+    makeCloudFloat(".bg-cloud-4", {
+      maxY: 10,
+      minDur: 24,
+      maxDur: 44,
+      delay: 5.5,
+    });
+    makeCloudFloat(".bg-cloud-5", {
+      maxY: 8,
+      minDur: 20,
+      maxDur: 38,
+      delay: 2.8,
+    });
+    makeCloudFloat(".top-cloud-1", {
+      maxY: 10,
+      minDur: 26,
+      maxDur: 48,
+      delay: 0.8,
+    });
+    makeCloudFloat(".top-cloud-2", {
+      maxY: 8,
+      minDur: 22,
+      maxDur: 42,
+      delay: 4.2,
+    });
+    makeCloudFloat(".top-cloud-3", {
+      maxY: 12,
+      minDur: 30,
+      maxDur: 55,
+      delay: 7.0,
+    });
+
+    /* Scroll-driven horizontal drift for transition clouds */
+    const tCloudTrigger = {
+      trigger: ".scycrapers-wrapper",
+      start: "top 95%",
+      end: "top 5%",
+      scrub: 2,
+    };
+
+    gsap.fromTo(
+      ".bg-cloud-3",
+      { x: 0 },
+      { x: -100, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+    gsap.fromTo(
+      ".bg-cloud-4",
+      { x: 0 },
+      { x: 80, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+    gsap.fromTo(
+      ".bg-cloud-5",
+      { x: 0 },
+      { x: -60, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+    gsap.fromTo(
+      ".top-cloud-1",
+      { x: 0 },
+      { x: 110, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+    gsap.fromTo(
+      ".top-cloud-2",
+      { x: 0 },
+      { x: -85, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+    gsap.fromTo(
+      ".top-cloud-3",
+      { x: 0 },
+      { x: 70, ease: "none", scrollTrigger: tCloudTrigger },
+    );
+  })();
+
+  /* ── Swiper cube ─────────────────────────────────────── */
+  const swiper = new Swiper(".mySwiper", {
+    modules: [EffectCube],
+    direction: "vertical",
+    effect: "cube",
+    allowTouchMove: false,
+    mousewheel: false,
+    speed: 700,
+    cubeEffect: {
+      shadow: true,
+      slideShadows: true,
+      shadowOffset: 20,
+      shadowScale: 0.94,
+    },
+    on: {
+      slideChange(swiper) {
+        const scrollHint = document.getElementById("scrollHint")!;
+        if (swiper.activeIndex > 0) {
+          scrollHint.classList.add("hidden");
+        } else {
+          scrollHint.classList.remove("hidden");
+        }
+      },
+    },
+  });
+
+  /* ── Swiper: one-slide-at-a-time wheel control ──────── */
+  let swiperActive = false;
+  let swiperLocked = false;
+  let swiperIdx = 0;
+  const TOTAL_SLIDES = 3;
+  let pinStart = 0;
+  let pinEnd = 0;
+
+  ScrollTrigger.create({
+    trigger: "#mainSwiper",
+    start: "top top",
+    end: "+=300vh",
+    pin: true,
+    pinSpacing: true,
+    onEnter(self) {
+      pinStart = self.start;
+      pinEnd = self.end;
+      swiperIdx = 0;
+      swiperActive = true;
+      lenis.stop();
+    },
+    onLeave() {
+      swiperActive = false;
+      lenis.start();
+    },
+    onEnterBack(self) {
+      pinStart = self.start;
+      pinEnd = self.end;
+      swiperIdx = TOTAL_SLIDES - 1;
+      swiper.slideTo(swiperIdx, 0);
+      swiperActive = true;
+      lenis.stop();
+    },
+    onLeaveBack() {
+      swiperActive = false;
+      swiperIdx = 0;
+      swiper.slideTo(0, 0);
+      lenis.start();
+    },
+  });
+
+  window.addEventListener(
+    "wheel",
+    (e) => {
+      if (!swiperActive) return;
+      e.preventDefault();
+      if (swiperLocked) return;
+
+      const dir = e.deltaY > 0 ? 1 : -1;
+      const next = swiperIdx + dir;
+
+      if (next >= 0 && next < TOTAL_SLIDES) {
+        swiperLocked = true;
+        swiperIdx = next;
+        swiper.slideTo(next, 800);
+        setTimeout(() => {
+          swiperLocked = false;
+        }, 1000);
+      } else if (next >= TOTAL_SLIDES) {
+        swiperActive = false;
+        lenis.scrollTo(pinEnd + 10, { immediate: true });
+        lenis.start();
+      } else {
+        swiperActive = false;
+        lenis.scrollTo(pinStart - 10, { immediate: true });
+        lenis.start();
+      }
+    },
+    { passive: false },
+  );
+
+  /* ══════════════════════════════════════════════════════════
+     Entrance animations — headings & body text
+  ══════════════════════════════════════════════════════════ */
+  (function () {
+    const HEAD_EASE = "expo.out";
+    const TEXT_EASE = "power3.out";
+
+    function revealHeading(
+      el: string | Element,
+      tl?: gsap.core.Timeline,
+      pos?: gsap.Position,
+    ) {
+      const from = { y: 72, autoAlpha: 0, skewX: -6 };
+      const to = {
+        y: 0,
+        autoAlpha: 1,
+        skewX: 0,
+        duration: 1.15,
+        ease: HEAD_EASE,
+      };
+      return tl ? tl.fromTo(el, from, to, pos) : gsap.fromTo(el, from, to);
+    }
+
+    function revealText(
+      els: string | Element | NodeList,
+      tl?: gsap.core.Timeline,
+      pos?: gsap.Position,
+    ) {
+      const from = { y: 34, autoAlpha: 0 };
+      const to = {
+        y: 0,
+        autoAlpha: 1,
+        duration: 0.95,
+        stagger: 0.14,
+        ease: TEXT_EASE,
+      };
+      return tl ? tl.fromTo(els, from, to, pos) : gsap.fromTo(els, from, to);
+    }
+
+    function onEnter(trigger: string, start: string, cb: () => void) {
+      ScrollTrigger.create({ trigger, start, once: true, onEnter: cb });
+    }
+
+    /* Set visibility:hidden elements back to auto via GSAP */
+    const allAnimated = document.querySelectorAll(
+      ".scycrapers h1, .section-features h2, .section-features .lead, .card," +
+        ".section-cta h2, .section-cta p, .section-cta .btn, .section-cta .btn-outline," +
+        ".swiper-slide h1, .swiper-slide h2, .swiper-slide p, .swiper-slide .btn," +
+        ".swiper-slide .image-block img",
+    );
+    gsap.set(allAnimated, { autoAlpha: 0 });
+
+    /* SCYCRAPERS manifesto */
+    onEnter(".scycrapers", "top 42%", () => {
+      revealHeading(".scycrapers h1");
+    });
+
+    /* CAPABILITIES GRID */
+    onEnter(".section-features", "top 72%", () => {
+      const tl = gsap.timeline();
+      revealHeading(".section-features h2", tl, 0);
+      revealText(".section-features .lead", tl, "-=0.72");
+      tl.fromTo(
+        ".card",
+        { y: 48, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: 0.85, stagger: 0.1, ease: TEXT_EASE },
+        "-=0.55",
+      );
+    });
+
+    /* CTA SECTION */
+    const ctaBtns = document.querySelectorAll(
+      ".section-cta .btn, .section-cta .btn-outline",
+    );
+    onEnter(".section-cta", "top 72%", () => {
+      const tl = gsap.timeline();
+      revealHeading(".section-cta h2", tl, 0);
+      revealText(".section-cta p", tl, "-=0.68");
+      tl.fromTo(
+        ctaBtns,
+        { y: 22, autoAlpha: 0 },
+        {
+          y: 0,
+          autoAlpha: 1,
+          duration: 0.65,
+          stagger: 0.14,
+          ease: "power2.out",
+        },
+        "-=0.42",
+      );
+    });
+
+    /* SWIPER SLIDES */
+    const slides = document.querySelectorAll(".swiper-slide");
+
+    function animateSlide(idx: number) {
+      const slide = slides[idx] as HTMLElement | undefined;
+      if (!slide) return;
+
+      const heading = slide.querySelector("h1, h2");
+      const paras = slide.querySelectorAll("p");
+      const btn = slide.querySelector(".btn");
+      const img = slide.querySelector(".image-block img");
+
+      const tl = gsap.timeline();
+
+      if (heading) revealHeading(heading, tl, 0);
+      if (paras.length) revealText(paras, tl, "-=0.65");
+      if (btn)
+        tl.fromTo(
+          btn,
+          { y: 22, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.65, ease: "power2.out" },
+          "-=0.42",
+        );
+      if (img)
+        tl.fromTo(
+          img,
+          { scale: 1.1, autoAlpha: 0 },
+          { scale: 1, autoAlpha: 1, duration: 1.2, ease: "power3.out" },
+          "-=1.05",
+        );
+    }
+
+    /* First slide — animate after Swiper has initialised */
+    window.addEventListener("load", () => {
+      setTimeout(() => animateSlide(0), 350);
+    });
+
+    /* Subsequent slides — animate as each cube face lands */
+    swiper.on("slideChangeTransitionEnd", () => {
+      animateSlide(swiper.activeIndex);
+    });
+  })();
+</script>

@@ -1,0 +1,93 @@
+---
+import NavScene from "./NavScene.astro";
+---
+
+<section class="hero">
+  <!-- Ambient background clouds -->
+  <img class="bg-cloud bg-cloud-1" src="/images/clouds/cloud02.png" alt="" />
+  <img class="bg-cloud bg-cloud-2" src="/images/clouds/cloud03.png" alt="" />
+  <!-- Bottom clouds (overflow onto next section intentionally) -->
+  <img class="bg-cloud bg-cloud-3" src="/images/clouds/cloud02.png" alt="" />
+  <img class="bg-cloud bg-cloud-4" src="/images/clouds/cloud03.png" alt="" />
+  <img class="bg-cloud bg-cloud-5" src="/images/clouds/cloud02.png" alt="" />
+
+  <!-- Bird Flock -->
+  <div id="bird-flock"></div>
+
+  <!-- Navigation -->
+  <NavScene />
+</section>
+
+<script>
+  /* ── Bird flock generator ─────────────────────────────── */
+  (function () {
+    var flock = document.getElementById("bird-flock");
+    if (!flock) return;
+
+    var birdSVG =
+      '<svg width="100%" height="100%" viewBox="0 0 300 300" aria-hidden="true">' +
+      '<path d="M150 130 C 130 130, 120 160, 150 200 C 180 160, 170 130, 150 130" fill="#111"/>' +
+      '<circle cx="150" cy="130" r="15" fill="#111"/>' +
+      '<path class="left-wing" d="M150 140 C 100 140, 50 100, 30 120 C 70 150, 100 160, 150 140" fill="#111"/>' +
+      '<path class="right-wing" d="M150 140 C 200 140, 250 100, 270 120 C 230 150, 200 160, 150 140" fill="#111"/>' +
+      "</svg>";
+
+    var easings = [
+      "ease-in-out",
+      "cubic-bezier(0.45,0.05,0.55,0.95)",
+      "cubic-bezier(0.37,0,0.63,1)",
+      "cubic-bezier(0.4,0.1,0.6,0.9)",
+      "cubic-bezier(0.5,0,0.5,1)",
+    ];
+
+    var N = 17;
+    for (var i = 0; i < N; i++) {
+      var dur = (10 + Math.random() * 3).toFixed(1);
+      var delay = (Math.random() * 3.5).toFixed(1);
+      var size = Math.round(24 + Math.random() * 15);
+      var bx = Math.round(-300 + Math.random() * 600);
+      var by = Math.round(-300 + Math.random() * 600);
+      var bflap = (0.32 + Math.random() * 0.38).toFixed(2);
+      var easing = easings[Math.floor(Math.random() * easings.length)];
+
+      var div = document.createElement("div");
+      div.className = "bird";
+      div.style.cssText =
+        "--bdur:" +
+        dur +
+        "s;" +
+        "--bdelay:" +
+        delay +
+        "s;" +
+        "--bsize:" +
+        size +
+        "px;" +
+        "--bx:" +
+        bx +
+        "px;" +
+        "--by:" +
+        by +
+        "px;" +
+        "--bflap:" +
+        bflap +
+        "s;" +
+        "--beasing:" +
+        easing +
+        ";";
+      div.innerHTML = birdSVG;
+      flock.appendChild(div);
+    }
+
+    function activateFlock() {
+      flock!.classList.add("flock-active");
+    }
+    window.addEventListener("wheel", activateFlock, {
+      once: true,
+      passive: true,
+    });
+    window.addEventListener("touchstart", activateFlock, {
+      once: true,
+      passive: true,
+    });
+  })();
+</script>
