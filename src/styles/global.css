@@ -610,3 +610,198 @@ body {
 .swiper-slide .image-block img {
   visibility: hidden;
 }
+
+/* ── Specs section ──────────────────────────────────── */
+.section-specs {
+  background: #0a1628;
+  padding: 7rem 2.5rem;
+}
+
+.specs-inner {
+  max-width: 1100px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+.specs-image img {
+  width: 100%;
+  border-radius: 20px;
+  display: block;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6);
+}
+
+.specs-content h2 {
+  font-size: clamp(1.6rem, 2.4vw, 2.4rem);
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.specs-intro {
+  font-size: 1rem;
+  opacity: 0.6;
+  line-height: 1.7;
+  margin: 0 0 2rem;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial,
+    sans-serif;
+  color: #fff;
+}
+
+.spec-list {
+  width: 100%;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial,
+    sans-serif;
+}
+
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-row dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.45;
+  color: #fff;
+  font-weight: 400;
+}
+
+.spec-row dd {
+  font-size: 0.92rem;
+  color: var(--c-gold);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ── Use Cases section ──────────────────────────────── */
+.section-usecases {
+  background: #080f1a;
+  flex-direction: column;
+  text-align: center;
+  padding: 7rem 2.5rem;
+}
+
+.section-usecases h2 {
+  font-size: clamp(1.4rem, 2vw, 2.2rem);
+  font-weight: 800;
+  margin: 0 0 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+.section-usecases .lead {
+  font-size: 1.05rem;
+  opacity: 0.6;
+  max-width: 560px;
+  margin: 0 auto 3.5rem;
+  line-height: 1.7;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial,
+    sans-serif;
+  color: #fff;
+}
+
+.usecase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 1.25rem;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.usecase-item {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  cursor: pointer;
+}
+
+.usecase-item.usecase-large {
+  grid-column: span 2;
+  aspect-ratio: 16 / 9;
+}
+
+.usecase-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.usecase-item:hover img {
+  transform: scale(1.06);
+}
+
+.usecase-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.82) 0%,
+    rgba(0, 0, 0, 0.3) 50%,
+    transparent 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  text-align: left;
+}
+
+.usecase-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial,
+    sans-serif;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+  opacity: 0.9;
+}
+
+.usecase-overlay h3 {
+  font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.01em;
+}
+
+.usecase-overlay p {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.55;
+  margin: 0;
+  font-family:
+    Helvetica Neue,
+    Helvetica,
+    Arial,
+    sans-serif;
+  max-width: 340px;
+}
